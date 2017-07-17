@@ -11,20 +11,21 @@
     library(dplyr)
 ################################################################################
     #  Set working directory
-    setwd("~/Documents/Animal ecology paper/New model/multinomial_molt_analysis_Foxes")
+    #setwd("~/Documents/Animal ecology paper/New model/multinomial_molt_analysis_Foxes")
+    setwd("~/Documents/WORK/DISSERTATION/GitHub")
     #  Path to data
-    jjn <- "~/Documents/Animal ecology paper/New model/molts5.3.csv"
-   
-     #  Source functions
-    source("code/utility_functions_fox.R")
-
+    #jjn <- "~/Documents/Animal ecology paper/New model/molts5.3.csv"
+    jjn <- "data/foxes/molts5.3.csv"
+     
+    #  Source functions
+    #source("code/utility_functions_fox.R")
+    source("Foxes/utility_functions_fox.R")
 ################################################################################
     #  Load data
     rawd <- read_csv(
       jjn,
       col_types = "cciiiiccccci"
     )
-    
 ################################################################################
     #  Morph raw data
     hares <- morph_data(rawd) %>%
@@ -34,8 +35,6 @@
         Area == "helags",
         Morph == "white"
       )
-
-
 ################################################################################
     #  Call a single model step by step - mimics jags_call
     #  Set time_scale for the analysis
@@ -73,7 +72,7 @@
     
     # Parameters to monitor
     parms <- c(
-      "pp", "beta", "alpha", "sig_cam", "tau_cam","p_rand"
+      "pp", "beta", "alpha", "sig_cam", "tau_cam"#,"p_rand"
     )
 
     #  Call jags
@@ -83,8 +82,8 @@
       parameters.to.save = parms,
       model.file = "models/multinom_randCam.txt", 
       n.chains = 3,
-      n.iter = 10000,
-      n.burnin = 2000,
+      n.iter = 100000,
+      n.burnin = 50000,
       n.thin = 3 
     )
 ################################################################################
