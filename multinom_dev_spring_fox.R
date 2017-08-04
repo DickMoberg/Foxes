@@ -14,8 +14,8 @@ library(mcmcplots)
 ################################################################################
 #  Set working directory
 #setwd("~/Documents/Animal ecology paper/New model/multinomial_molt_analysis_Foxes")
-#setwd("~/Documents/WORK/DISSERTATION/GitHub")
-setwd("E:/Foxes")
+setwd("/Users/marketzimova/Documents/WORK/DISSERTATION/GitHub/Foxes")
+#setwd("E:/Foxes")
 
 #  Path to data
 #jjn <- "~/Documents/Animal ecology paper/New model/molts5.3.csv"
@@ -76,20 +76,19 @@ dat <- list(
 
 # Parameters to monitor
 parms <- c(
-  "pp", "beta", "alpha", "sigma", "rho", "elev_eff"#, 
-  #"p_rand","cat_mu" 
+  "pp", "beta", "alpha", "p_rand"#, "elev_eff"
 )
 
 #  Call jags
 start.time <- Sys.time()
-out <- jags.parallel(
+out <- jags(
   data = dat, 
   inits = NULL,
   parameters.to.save = parms,
-  model.file = "models/multinom_mvn.txt", 
+  model.file = "models/multinom.txt", 
   n.chains = 3,
-  n.iter = 300000,
-  n.burnin = 150000,
+  n.iter = 100000,
+  n.burnin = 50000,
   n.thin = 3
 )
 end.time <- Sys.time();(time.taken <-end.time-start.time)
@@ -102,7 +101,7 @@ beep()
 # Save results as csv
 #writes csv with results
   out.sum <- out$BUGS$summary 
-  write.table(out.sum, file="Results/Hel_blue_spring_2016_300K.csv",sep=",")
+  write.table(out.sum, file="Results/Hel_blue_spring_2016_100K.csv",sep=",")
 
 #options(max.print=100000) #extend maximum for print
 #print(out)
@@ -150,7 +149,7 @@ hist(starts, add = T, freq = F, col = "green", border = "green")
 hist(ends, add = T, freq = F, col = "black", border = "black")  
 hist(mids, add = T, freq = F, col = "red", border = "red")  
 text(50, 0.2, paste("Helags Blue Spring 2016",
-                    "\n300K/150K alm.conv",
+                    "\n100K/50K alm.conv",
                    #"\nelev_eff1 =", quantile(signif(out$BUGS$sims.list$elev_eff[,1],digits=2),0.025),quantile(signif(out$BUGS$sims.list$elev_eff[,1],digits=2),0.5),quantile(signif(out$BUGS$sims.list$elev_eff[,1],digits=2),0.925),
                    #"\nelev_eff2 =", quantile(signif(out$BUGS$sims.list$elev_eff[,2],digits=2),0.025),quantile(signif(out$BUGS$sims.list$elev_eff[,2],digits=2),0.5),quantile(signif(out$BUGS$sims.list$elev_eff[,2],digits=2),0.925),
                    "\nStarts =", quantile(starts, 0.025),quantile(starts, 0.5),quantile(starts, 0.975),

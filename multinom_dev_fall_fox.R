@@ -14,14 +14,16 @@ library(mcmcplots)
 ################################################################################
 #  Set working directory
 #setwd("~/Documents/Animal ecology paper/New model/multinomial_molt_analysis_Foxes")
-setwd("~/Documents/WORK/DISSERTATION/GitHub")
+setwd("/Users/marketzimova/Documents/WORK/DISSERTATION/GitHub/Foxes")
+#setwd("G:/Github/Foxes")
+
 #  Path to data
 #jjn <- "~/Documents/Animal ecology paper/New model/molts5.3.csv"
-jjn <- "data/foxes/molts5.3.csv"
+jjn <- "molts5.3.csv"
 
 #  Source functions
 #source("code/utility_functions_fox.R")
-source("Foxes/utility_functions_fox.R")
+source("utility_functions_fox.R")
 ################################################################################
 #  Load data
 rawd <- read_csv(
@@ -74,17 +76,16 @@ dat <- list(
 
 # Parameters to monitor
 parms <- c(
-  "pp", "beta", "alpha", "sigma", "rho"#, "elev_eff"#, "p_rand"
-  #, "cat_mu" 
+  "pp", "beta", "alpha", "p_rand"#, "elev_eff"
 )
 
 #  Call jags
 start.time <- Sys.time()
-out <- jags.parallel(
+out <- jags(
   data = dat, 
   inits = NULL,
   parameters.to.save = parms,
-  model.file = "Foxes/models/multinom_mvn.txt", 
+  model.file = "models/multinom.txt", 
   n.chains = 3,
   n.iter = 100000,
   n.burnin = 50000,
@@ -95,29 +96,29 @@ beep()
 
 ################################################################################
 # Save results out
-#save(out, file = "E:/GitHub/multinomial_molt_analysis/results/2016out.RData"); load("2014out.RData")
+#save(out, file = "G:/GitHub/multinomial_molt_analysis/results/2016out.RData"); load("2014out.RData")
 
 # Save results as csv
 #writes csv with results
 out.sum <- out$BUGS$summary 
-write.table(out.sum, file="G:/GitHub/multinomial_molt_analysis/results/NH2_2015_fall_mvn_400K.csv",sep=",")
+write.table(out.sum, file="Results/Hel_White_2016_fall_100K.csv",sep=",")
 
 #options(max.print=100000) #extend maximum for print
 #print(out)
-out$BUGS$mean$elev_eff
+#out$BUGS$mean$elev_eff
 
 ################################################################################
 # Plots
 #  Find start dates
 starts <- apply(out$BUGS$sims.list$pp[,1,], 1, function(x){ 
-  min(which(x < 0.9)) 
+  min(which(x < 0.5)) 
 })
 hist(starts, xlab = "Day")
 quantile(starts, c(0.025, 0.5, 0.975))
 
 #  Find end dates
 ends <- apply(out$BUGS$sims.list$pp[,3,], 1, function(x){ 
-  min(which(x > 0.9)) 
+  min(which(x > 0.5)) 
 })
 hist(ends, xlab = "Day")
 quantile(ends, c(0.025, 0.5, 0.975))
@@ -131,7 +132,7 @@ quantile(mids, c(0.025, 0.5, 0.975))
 
 #Plot start and end dates and mean pps
 plot(0, 0, type = "n", col = "red", bty = "l",
-     ylim = c(-.1, 1.1), xlim = c(150, 365),
+     ylim = c(-.1, 1.1), xlim = c(150, 350),
      xlab = "Time", ylab = "Probability of being in bin 'x'")
 
 day_seq <- 1:dim(out$BUGS$mean$pp)[2]
@@ -147,7 +148,8 @@ abline(v=c(quantile(ends, 0.025), quantile(ends, 0.975)), col = "black", lty = 3
 hist(starts, add = T, freq = F, col = "green", border = "green")
 hist(ends, add = T, freq = F, col = "black", border = "black")  
 hist(mids, add = T, freq = F, col = "red", border = "red")  
-text(150, 0.2, paste("NH 2015 fall, 400K/200K",
+text(150, 0.2, paste("Helags White Fall 2016",
+                    "\n100K/50K conv",
                    #"\nelev_eff1 =", quantile(signif(out$BUGS$sims.list$elev_eff[,1],digits=2),0.025),quantile(signif(out$BUGS$sims.list$elev_eff[,1],digits=2),0.5),quantile(signif(out$BUGS$sims.list$elev_eff[,1],digits=2),0.925),
                    #"\nelev_eff2 =", quantile(signif(out$BUGS$sims.list$elev_eff[,2],digits=2),0.025),quantile(signif(out$BUGS$sims.list$elev_eff[,2],digits=2),0.5),quantile(signif(out$BUGS$sims.list$elev_eff[,2],digits=2),0.925),
                    "\nStarts =", quantile(starts, 0.025),quantile(starts, 0.5),quantile(starts, 0.975),
